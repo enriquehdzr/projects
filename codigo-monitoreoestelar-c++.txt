@@ -1,0 +1,365 @@
+//Este codigo es implementado en un microcontrolador ATmega 8 para poder monitoreo estelar
+// se puede adaptar a un radio telescopio.
+// L idea es ingresar información del objeto estelar que se desea seguir. El programa por sí solo hace los calculos y evaluaciones
+// necesarios para predecir la posicion futura del mismo y asi continuar con una observación continua y precisa.
+
+
+
+#include <Keypad.h>
+#include <Wire.h> 
+#include<AFMotor.h>
+
+
+//////////    instrucciones
+//////////  Para dar los valores de posicion actual se pulsan las coordenadas de AR y posterior se guarda con *
+//////////  en seguida, se pulsan las coordenadas de DEC y se guarda con #
+//////////  para el setup del objeto a buscar, se empieza por la DEC, pulsando las coordenadas deseadas y 
+//////////  accionando con C si son coordenadas positivas, o D si son negativas
+//////////  ahora, se procede a la AR, pulsando las coordenadas deseadas y
+//////////  accionando con A si el cambio de posicion no implica girar por debajo del horizonte (quedando el tubo de cabeza)
+//////////  en caso de que pudiera chocar el tubo con el tripie por girar por debajo del horizonte
+//////////  entonces se acciona con B
+//////////
+
+
+AF_DCMotor motor1(1);              // A la puerta M1 M2
+AF_Stepper motor2(200, 2);
+
+long first = 0;
+long second = 0;
+long int  muevepasos2, muevepasos1;
+double total = 0;
+long goes1, actual1, mueve1;
+float goes2,actual2,mueve2,accion1, accion2,segundos2,tiemporealdegiro;
+long horas, minutos,  correccion, segundos, razonminutos, razonsegundos, valor1, valor2, reversa, horas2,minutos2,valor3;
+int STEP, i,divisor;
+int state=0;
+int analogPin= 14; 
+const byte interruptPin = 2 ;
+const int rele = 9;
+
+
+char customKey;
+const byte ROWS = 4;
+const byte COLS = 4;
+
+char keys[ROWS][COLS] = {
+  {'1','2','3','A'},
+  {'4','5','6','B'},
+  {'7','8','9','C'},
+  {'*','0','#','D'}
+};
+byte rowPins[ROWS] = {52,50,48,46}; //connect to the row pinouts of the keypad
+byte colPins[COLS] = {44,42,40,38}; //connect to the column pinouts of the keypad
+
+//initialize an instance of class NewKeypad
+Keypad customKeypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS); 
+
+void setup()
+{
+  pinMode(rele,OUTPUT);
+  Serial.begin(9600);
+    pinMode(21, INPUT/*_PULLUP*/);
+   motor1.setSpeed(1); // 60 rpm
+      motor2.setSpeed(30);
+      STEP=20000;
+
+}
+
+void loop()
+{
+       
+  customKey = customKeypad.getKey();
+  switch(customKey) 
+  {
+  case '0' ... '9': // This keeps collecting the first value until a operator is pressed "+-*/"
+
+    first = first * 10 + (customKey - '0');
+      Serial.println(first);
+    
+    break;
+
+  case 'A':
+  digitalWrite(rele,HIGH);
+   motor1.setSpeed(255); 
+
+   goes1=first;
+
+     Serial.println(goes1);
+
+     horas= goes1/10000;
+  
+    minutos= (goes1-(horas*10000))/100;
+
+    segundos= goes1- (horas*10000)- (minutos*100);
+
+    mueve1=horas*3600+minutos*60+segundos;
+  
+//// 6 vueltas de AR son hora y media
+/// con10.28v en setup da una vuelta en 3 minutos 25 seg... que es igual a 205 seg por cada vuelta
+///     eso significa que 205 seg de setup dan 15 minutos o 900 seg de AR... entonces cada segundo de AR equivale a 0.2277777 segundos de setup
+////     10.28v en setup y 2.7v en tracking
+
+    correccion=(mueve1-actual1)*0.2277777;    //// la correccion se refiere a los segundos extra o menos que debe estar en setup por los mismos segundos que se tarda en alcanzar el objetivo
+    
+if(correccion>0){
+      muevepasos1=(mueve1-actual1+correccion)*227.7777;
+      Serial.print(mueve1); Serial.print('-');
+    Serial.print(actual1); Serial.print('='); Serial.println(muevepasos1);
+
+      motor1.run(BACKWARD);
+      delay(muevepasos1);
+      motor1.run(RELEASE);
+}
+else{
+      Serial.print(mueve1); Serial.print('-');
+    Serial.print(actual1); Serial.print('='); Serial.println(muevepasos1);
+muevepasos1=(mueve1-actual1-correccion)*227.7777;
+  muevepasos1=muevepasos1*(-1);
+      motor1.run(FORWARD);
+    delay(muevepasos1);
+    motor1.run(RELEASE);
+}
+
+  actual1= mueve1;
+      first=0;
+     Serial.print(horas); Serial.print(':'); Serial.print(minutos);Serial.print(':'); Serial.println(segundos); 
+     
+      tiemporealdegiro= (muevepasos1/60000);
+    Serial.print(tiemporealdegiro); 
+     
+digitalWrite(rele,LOW);
+ motor1.setSpeed(67); //64
+motor1.run(FORWARD);
+delay(99999999);
+motor1.run(RELEASE);
+  
+
+  
+    break;
+
+
+
+
+
+
+
+  case 'C':
+
+     goes2=first; 
+
+     Serial.println(goes2);
+
+    horas2= goes2/10000;
+  
+    minutos2= (goes2-(horas2*10000))/100;
+
+    segundos2= goes2- (horas2*10000)- (minutos2*100);
+
+    mueve2=horas2  +  (minutos2  +  (segundos2/60))/60;
+
+      //motor 2 son 51.428571 grados por 200 pasos... cada 7 vueltas de piñon es una vuelta de engrane
+    muevepasos2=(mueve2-actual2)*3.88888888;
+    Serial.print(mueve2); Serial.print('-');
+    Serial.print(actual2); Serial.print('='); Serial.println(muevepasos2/3.88888888);
+      actual2= mueve2;
+   
+    
+first=0;
+    Serial.print(horas2); Serial.print(':'); Serial.print(minutos2);Serial.print(':'); Serial.println(segundos2);
+    if(muevepasos2>0){
+     
+      motor2.step(muevepasos2,BACKWARD, DOUBLE);   
+}
+else{
+      motor2.step(muevepasos2*(-1),FORWARD, DOUBLE);
+}
+
+
+     motor2.release();
+    break;
+
+
+
+
+
+
+    
+
+  case 'D':
+
+  goes2=first; 
+
+     Serial.println(goes2);
+
+    horas2= goes2/10000;
+  
+    minutos2= (goes2-(horas2*10000))/100;
+
+    segundos2= goes2- (horas2*10000)- (minutos2*100);
+
+    mueve2=horas2  +  (minutos2  +  (segundos2/60))/60;
+
+      //motor 2 son 51.428571 grados por 200 pasos
+    muevepasos2=(-mueve2-actual2)*3.88888888;
+    // -90-90
+    Serial.print(-mueve2); Serial.print('-');
+    Serial.print(actual2); Serial.print('='); Serial.println(muevepasos2/3.88888888);
+      actual2= -mueve2;
+   
+    
+first=0;
+      Serial.print('-'); Serial.print(horas2); Serial.print(':'); Serial.print(minutos2);Serial.print(':'); Serial.println(segundos2);
+    if(muevepasos2>0){
+     
+      motor2.step(muevepasos2,BACKWARD, DOUBLE);  
+}
+else{
+      motor2.step(muevepasos2*(-1),FORWARD, DOUBLE);
+}
+
+
+     motor2.release();
+    break;
+
+
+
+
+
+
+    
+
+  case 'B':
+
+  digitalWrite(rele,HIGH);
+  
+   motor1.setSpeed(255); 
+
+   goes1=first;
+
+     Serial.println(goes1);
+
+ horas= (goes1/10000);
+  
+    minutos= (goes1-(horas*10000))/100;
+
+    segundos= (goes1- (horas*10000)- (minutos*100));
+
+    mueve1=((horas*3600))+minutos*60+segundos;
+  
+     reversa=86400;
+    
+      first=0;
+      Serial.println('B');
+if(mueve1>actual1){
+     correccion=((mueve1-actual1)-reversa)*0.2277777;
+       muevepasos1=((mueve1-actual1)-reversa-correccion)*227.7777;
+      Serial.print(mueve1); Serial.print('-');
+    Serial.print(actual1); Serial.print('-'); Serial.print(reversa);Serial.print('='); Serial.println(muevepasos1);
+
+      motor1.run(FORWARD);
+      delay(muevepasos1);
+      motor1.run(RELEASE);
+}
+if(mueve1<=actual1){
+  correccion=(reversa+(mueve1-actual1))*0.2277777;
+  muevepasos1=(reversa+(mueve1-actual1)+correccion)*227.7777;
+      Serial.print(mueve1); Serial.print('-');
+    Serial.print(actual1); Serial.print('+');Serial.print(reversa); Serial.print('='); Serial.println(muevepasos1);
+    muevepasos1=muevepasos1*(-1);
+    
+      motor1.run(BACKWARD);
+      delay(muevepasos1);
+      motor1.run(RELEASE);
+}
+
+      Serial.print(horas); Serial.print(':'); Serial.print(minutos);Serial.print(':'); Serial.println(segundos); 
+ actual1= mueve1;
+
+ digitalWrite(rele,LOW);
+ motor1.setSpeed(67); 
+
+motor1.run(FORWARD);
+delay(99999999);
+
+motor1.run(RELEASE);
+  
+    break;
+
+
+
+
+
+
+    
+
+  case '#':
+ valor3=first;
+
+
+ if(valor3>999999){
+  
+  divisor=valor3/1000000;
+   valor2=valor3-(divisor*1000000);
+    Serial.print('-'); Serial.println(valor2);
+    
+ }
+ else{
+   valor2=valor3;
+  Serial.println(valor2);
+ 
+ }
+
+    horas2= valor2/10000;
+  
+    minutos2= (valor2-(horas2*10000))/100;
+
+    segundos2= valor2- (horas2*10000)- (minutos2*100);
+    
+    actual2=horas2  +  (minutos2  +  (segundos2/60))/60;
+   
+    if(valor3>999999){
+     actual2= -actual2;
+     Serial.print('-');Serial.print(horas2); Serial.print(':'); Serial.print(minutos2);Serial.print(':'); Serial.println(segundos2);
+    }
+    else{
+      Serial.print(horas2); Serial.print(':'); Serial.print(minutos2);Serial.print(':'); Serial.println(segundos2);
+    }
+    
+    
+first=0;
+       
+
+
+
+    break;
+
+
+
+
+
+
+
+    
+    
+  case '*':
+    valor1=first;
+  Serial.println(valor1);
+
+    horas= valor1/10000;
+  
+    minutos= (valor1-(horas*10000))/100;
+
+    segundos= valor1- (horas*10000)- (minutos*100);
+    
+     actual1=horas*3600+minutos*60+segundos;
+first=0;
+
+    Serial.print(horas); Serial.print(':'); Serial.print(minutos);Serial.print(':'); Serial.println(segundos);
+ 
+    break;
+
+  }
+}
+
+

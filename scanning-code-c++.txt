@@ -1,0 +1,574 @@
+/// Este codigo en C++ tiene la finalidad de ser carado a un microcontrolador ATmega 8
+// la idea es realizar un scaneo sobre superficies de diferentes dimensiones.
+// Con este programa se interpretan datos que se introducen a traves de un teclado para poder
+// definir el comportamiento que tendra el movimiento del equipo.
+
+
+
+
+
+
+
+
+#include <Keypad.h>
+
+#include <Wire.h> 
+
+
+
+#define X_STEP_PIN 54
+#define X_DIR_PIN 55
+#define X_ENABLE_PIN 38
+
+#define Y_STEP_PIN 60
+#define Y_DIR_PIN 61
+#define Y_ENABLE_PIN 56
+
+#define Z_STEP_PIN 46
+#define Z_DIR_PIN 48
+#define Z_ENABLE_PIN 62
+
+long first = 0;
+long second = 0;
+int state=0;
+int analogPin= 14; 
+int bajaraltura,longitud_y,longitud_x,pasostotales_y,pasos_x,pasos_altura,particiones,pasos_y,repeticiones;
+int retraso= 2; ///ES EL TIEMPO EN MILISEG PARA EL GIRO DE LOS MOTORES
+int alfa=0;
+int gama=0;
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/////// Aqui se definen los limites dimensionales de cada eje en milímetros//////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+
+
+int limite_x=121;
+int limite_y=121;  
+int limite_z=111;
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+
+char customKey;
+const byte ROWS = 4;
+const byte COLS = 4;
+
+char keys[ROWS][COLS] = {
+  {'1','2','3','A'},
+  {'4','5','6','B'},
+  {'7','8','9','C'},
+  {'*','0','#','D'}
+};
+byte rowPins[ROWS] = {47,45,43,41};//connect to the row pinouts of the keypad
+byte colPins[COLS] =  {39,37,35,33}; //connect to the column pinouts of the keypad
+
+//initialize an instance of class NewKeypad
+Keypad customKeypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS); 
+
+void setup()
+{
+
+  Serial.begin(9600);
+ pinMode(X_STEP_PIN , OUTPUT);
+ pinMode(X_DIR_PIN , OUTPUT);
+
+ pinMode(Y_STEP_PIN , OUTPUT);
+ pinMode(Y_DIR_PIN , OUTPUT);
+
+  pinMode(Z_STEP_PIN , OUTPUT);
+ pinMode(Z_DIR_PIN , OUTPUT);
+
+
+
+}
+
+void loop()
+{
+       
+  customKey = customKeypad.getKey();
+ // Serial.print(customKey);
+
+  
+  switch(customKey) 
+  {
+  case '0' ... '9': // This keeps collecting the first value until a operator is pressed "+-*"
+
+    first = first * 10 + (customKey - '0');  ///en first se guardan los valores
+      Serial.println(first);
+    
+    break;
+
+
+
+  case 'A':
+//haremos que tras presionar A obtengamos la altura en milimetros 
+
+bajaraltura = 0;
+
+if(first<=limite_z){
+  
+bajaraltura= limite_z - first;
+}
+Serial.println("bajar altura");
+Serial.println(bajaraltura);
+pasos_altura=bajaraltura*140; //numero de pasos que debe dar
+  first = 0;
+
+
+
+/*///____________esto lo vamos a borrar
+
+  pinMode(Y_ENABLE_PIN , OUTPUT);
+ 
+   
+ digitalWrite(Y_ENABLE_PIN , LOW);
+
+ digitalWrite(Y_DIR_PIN , LOW);
+int retraso= 2; 
+int cantidaddepasos=140*60;
+/////prueba de giros--------------
+ for (int k = 0; k <= cantidaddepasos; k++)
+ {
+ digitalWrite(Y_STEP_PIN , HIGH);                  //desplazamiento inicial en z
+// delayMicroseconds(50);
+ delay(retraso);
+ digitalWrite(Y_STEP_PIN , LOW); 
+  
+ //
+                      //// ESTA PARTE COMENTARIADA ES PARA PROBAR QUE LOS MOTORES GIREN
+ }
+ digitalWrite(X_DIR_PIN , LOW);
+delay(1000);
+  for (int k = 0; k <= cantidaddepasos; k++)
+ {
+ digitalWrite(X_STEP_PIN , HIGH);                  //desplazamiento inicial en z
+ //delayMicroseconds(50);
+ delay(retraso);
+ digitalWrite(X_STEP_PIN , LOW);
+ }
+pinMode(X_ENABLE_PIN , INPUT);
+ 
+ /////////////////////*/
+    break;
+
+
+
+
+  case 'B':
+
+ //haremos que tras presionar B obtengamos la longitud en Y en milimetros
+
+longitud_y = 0;
+
+if(first<=limite_y){
+longitud_y= first;
+}
+Serial.println("longitud_y");
+Serial.println(longitud_y);
+pasostotales_y=longitud_y*140; //numero de pasos que debe dar
+  first = 0;
+    break;
+
+
+
+  case 'C':
+
+ //haremos que tras presionar C obtengamos la longitud en X en milimetros
+
+longitud_x = 0;
+if(first<=limite_x){
+longitud_x= first;
+}
+Serial.println("longitud_x");
+Serial.println(longitud_x);
+pasos_x=longitud_x*140; //numero de pasos que debe dar
+
+first = 0;
+    break;
+
+
+ 
+
+  case 'D':
+
+//haremos que tras presionar D obtengamos el numero de particiones en Y
+
+particiones=0;
+particiones=first;
+Serial.println("particiones");
+Serial.println(particiones);
+
+if(particiones>1){
+  pasos_y=pasostotales_y/(particiones-1);
+  }
+  else{
+    pasostotales_y=0;
+    }
+first = 0;
+
+    break;
+
+
+ 
+
+  case '#':
+
+//haremos que nos den el numero de repeticiones
+
+repeticiones=0;
+repeticiones =first;
+Serial.println("repeticiones");
+Serial.println(repeticiones);
+first = 0;
+    break;
+
+
+
+
+
+
+
+    
+    
+  case '*':
+//daremos accion de inicio a todos los movimientos
+
+Serial.println("iniciamos");
+
+
+   pinMode(Z_ENABLE_PIN , OUTPUT);
+ digitalWrite(Z_ENABLE_PIN , LOW); 
+
+
+
+  //ponemos la direccion inicial
+ digitalWrite(Z_DIR_PIN , LOW);
+ digitalWrite(X_DIR_PIN , LOW);
+ digitalWrite(Y_DIR_PIN , HIGH);
+
+
+//-------------------------------------------------------------
+ for (int k = 0; k <= pasos_altura; k++)
+ {
+ digitalWrite(Z_STEP_PIN , HIGH);                  //desplazamiento inicial en z
+ delay(retraso);
+ digitalWrite(Z_STEP_PIN , LOW);
+ }
+
+   pinMode(Z_ENABLE_PIN , INPUT); ///en esta linea DESACTIVAMOS el motor de z
+
+pinMode(X_ENABLE_PIN , OUTPUT); 
+   
+ digitalWrite(X_ENABLE_PIN , LOW);
+
+
+ for (int i = 0; i <= (((limite_x)*140)-pasos_x)/2; i++)
+ {
+ digitalWrite(X_STEP_PIN , HIGH);                  //desplazamiento inicial en X
+  delay(retraso);
+ digitalWrite(X_STEP_PIN , LOW);
+ }
+
+  pinMode(X_ENABLE_PIN , INPUT);
+
+ pinMode(Y_ENABLE_PIN , OUTPUT);
+ digitalWrite(Y_ENABLE_PIN , LOW);
+
+ 
+ for (int j = 0; j <= (((limite_x)*140)-pasostotales_y)/2; j++)
+ {
+ digitalWrite(Y_STEP_PIN , HIGH);                  //desplazamiento inicial en y
+ delay(retraso);
+ digitalWrite(Y_STEP_PIN , LOW);
+ }
+   pinMode(Y_ENABLE_PIN , INPUT);
+
+
+   delay(2000);
+//-----------------------------------------------------------------
+for(int r=1;r<=repeticiones;r++){// este for cuenta las repeticiones
+//-----------------------------------------------------------------
+
+ ///////////////////////
+ /////////////
+ //////////////////////
+ ////////////////
+
+
+
+ for(int e=1;e<=particiones;e++){///PARTICIONES DE IDA
+  if(e%2==0){ ////si es par
+    
+     pinMode(X_ENABLE_PIN , OUTPUT); 
+ digitalWrite(X_ENABLE_PIN , LOW);
+ digitalWrite(X_DIR_PIN , HIGH);                        ///HIGH Sacerca ----- LOW aleja ---para x
+ 
+ for (int i = 0; i <= pasos_x; i++)
+ {
+ digitalWrite(X_STEP_PIN , HIGH);       //se desplaza en una linea en x
+  delay(retraso);
+ digitalWrite(X_STEP_PIN , LOW);
+ }
+ pinMode(X_ENABLE_PIN , INPUT);
+
+ if(particiones-e>0){//  bajar en y si aun hay particiones, si no, no
+    pinMode(Y_ENABLE_PIN , OUTPUT);  
+ digitalWrite(Y_ENABLE_PIN , LOW);
+ 
+ digitalWrite(Y_DIR_PIN , HIGH); 
+  for (int j = 0; j <= pasos_y; j++) //baja en y
+ {
+ digitalWrite(Y_STEP_PIN , HIGH);          // baja en un segmento de y
+ delay(retraso);
+ digitalWrite(Y_STEP_PIN , LOW);
+ }
+ pinMode(Y_ENABLE_PIN , INPUT);
+  }
+  
+  }
+
+  else{//1 si es impar
+    
+      pinMode(X_ENABLE_PIN , OUTPUT);  
+ digitalWrite(X_ENABLE_PIN , LOW);
+ digitalWrite(X_DIR_PIN , LOW); //cambiamos direccion para que se aleje del motor en x
+
+ for (int i = 0; i <= pasos_x; i++)
+ {
+ digitalWrite(X_STEP_PIN , HIGH);
+ delay(retraso);
+ digitalWrite(X_STEP_PIN , LOW);
+ }         
+  pinMode(X_ENABLE_PIN , INPUT); 
+  
+
+ if(particiones-e>0){//  bajar en y si aun hay particiones, si no, no
+    pinMode(Y_ENABLE_PIN , OUTPUT);  
+ digitalWrite(Y_ENABLE_PIN , LOW);
+ 
+ digitalWrite(Y_DIR_PIN , HIGH); 
+  for (int j = 0; j <= pasos_y; j++) //baja en y
+ {
+ digitalWrite(Y_STEP_PIN , HIGH);          // baja en un segmento de y
+ delay(retraso);
+ digitalWrite(Y_STEP_PIN , LOW);
+ }
+ pinMode(Y_ENABLE_PIN , INPUT);
+  }
+
+  
+  }//else 1
+  
+ }//for e<=particiones de ida
+
+
+///----------------------------
+///////////empezamos el retorno
+delay(2000);
+///----------------------------
+
+
+if(particiones%2==0){//si repeticiones es par en retorno
+
+ for(int e=1;e<=particiones;e++){
+  if(e%2==0){ ////si particones es par y e es par
+    
+     pinMode(X_ENABLE_PIN , OUTPUT); 
+ digitalWrite(X_ENABLE_PIN , LOW);
+ digitalWrite(X_DIR_PIN , HIGH);                        ///HIGH Sacerca ----- LOW aleja ---para x
+ 
+ for (int i = 0; i <= pasos_x; i++)
+ {
+ digitalWrite(X_STEP_PIN , HIGH);       //se desplaza en una linea en x
+  delay(retraso);
+ digitalWrite(X_STEP_PIN , LOW);
+ }
+ pinMode(X_ENABLE_PIN , INPUT);
+
+ if(particiones-e>0){//  bajar en y si aun hay particiones, si no, no
+    pinMode(Y_ENABLE_PIN , OUTPUT);  
+ digitalWrite(Y_ENABLE_PIN , LOW);
+ 
+ digitalWrite(Y_DIR_PIN , LOW); 
+  for (int j = 0; j <= pasos_y; j++) //baja en y
+ {
+ digitalWrite(Y_STEP_PIN , HIGH);          // baja en un segmento de y /////en y LOW acerca y HIGH aleja
+ delay(retraso);
+ digitalWrite(Y_STEP_PIN , LOW);
+ }
+ pinMode(Y_ENABLE_PIN , INPUT);
+  }
+  
+  }
+
+  else{//2 si PARTICIONES es par y e impar
+    
+      pinMode(X_ENABLE_PIN , OUTPUT);  
+ digitalWrite(X_ENABLE_PIN , LOW);
+ digitalWrite(X_DIR_PIN , LOW); //cambiamos direccion para que se aleje del motor en x
+
+ for (int i = 0; i <= pasos_x; i++)
+ {
+ digitalWrite(X_STEP_PIN , HIGH);
+ delay(retraso);
+ digitalWrite(X_STEP_PIN , LOW);
+ }         
+  pinMode(X_ENABLE_PIN , INPUT); 
+  
+
+ if(particiones-e>0){//  bajar en y si aun hay particiones, si no, no
+    pinMode(Y_ENABLE_PIN , OUTPUT);  
+ digitalWrite(Y_ENABLE_PIN , LOW);
+ 
+ digitalWrite(Y_DIR_PIN , LOW); 
+  for (int j = 0; j <= pasos_y; j++) //baja en y
+ {
+ digitalWrite(Y_STEP_PIN , HIGH);          // baja en un segmento de y
+ delay(retraso);
+ digitalWrite(Y_STEP_PIN , LOW);
+ }
+ pinMode(Y_ENABLE_PIN , INPUT);
+  }
+
+  
+  }//2 si PARTICIONES es par y e impar
+  
+ }
+}
+
+
+
+
+
+else{ //si particiones es impar en retorno
+
+ for(int e=1;e<=particiones;e++){
+  if(e%2==0){ ////si PARTICIONES es IMpar y e es par
+    
+     pinMode(X_ENABLE_PIN , OUTPUT); 
+ digitalWrite(X_ENABLE_PIN , LOW);
+ digitalWrite(X_DIR_PIN , LOW);                        ///HIGH Sacerca ----- LOW aleja ---para x
+ 
+ for (int i = 0; i <= pasos_x; i++)
+ {
+ digitalWrite(X_STEP_PIN , HIGH);       //se desplaza en una linea en x
+  delay(retraso);
+ digitalWrite(X_STEP_PIN , LOW);
+ }
+ pinMode(X_ENABLE_PIN , INPUT);
+
+ if(particiones-e>0){//  bajar en y si aun hay particiones, si no, no
+    pinMode(Y_ENABLE_PIN , OUTPUT);  
+ digitalWrite(Y_ENABLE_PIN , LOW);
+ 
+ digitalWrite(Y_DIR_PIN , LOW); 
+  for (int j = 0; j <= pasos_y; j++) //baja en y
+ {
+ digitalWrite(Y_STEP_PIN , HIGH);          // baja en un segmento de y
+ delay(retraso);
+ digitalWrite(Y_STEP_PIN , LOW);
+ }
+ pinMode(Y_ENABLE_PIN , INPUT);
+  }
+  
+  }////si PARTICIONES es IMpar y e es par
+
+  else{//3 si particiones es impar Y E es impar
+    
+      pinMode(X_ENABLE_PIN , OUTPUT);  
+ digitalWrite(X_ENABLE_PIN , LOW);
+ digitalWrite(X_DIR_PIN , HIGH); //cambiamos direccion para que se aleje del motor en x
+
+ for (int i = 0; i <= pasos_x; i++)
+ {
+ digitalWrite(X_STEP_PIN , HIGH);
+ delay(retraso);
+ digitalWrite(X_STEP_PIN , LOW);
+ }         
+  pinMode(X_ENABLE_PIN , INPUT); 
+  
+
+ if(particiones-e>0){//  bajar en y si aun hay particiones, si no, no
+    pinMode(Y_ENABLE_PIN , OUTPUT);  
+ digitalWrite(Y_ENABLE_PIN , LOW);
+ 
+ digitalWrite(Y_DIR_PIN , LOW); 
+  for (int j = 0; j <= pasos_y; j++) //baja en y
+ {
+ digitalWrite(Y_STEP_PIN , HIGH);          // baja en un segmento de y
+ delay(retraso);
+ digitalWrite(Y_STEP_PIN , LOW);
+ }
+ pinMode(Y_ENABLE_PIN , INPUT);
+  }
+
+  
+  }//else 3 si particiones es impar
+  
+ }
+}
+  
+
+
+
+  
+
+}////CIERRA REPETICIONES
+
+
+ ////////////////////
+ /////////////////////
+ ////////////////////
+ /////////////////7
+ ////////////////
+delay(2000);
+
+///INICIAMOS EL RETORNO A POSICION BASE
+//-------------------------------------------------------------
+
+   pinMode(Z_ENABLE_PIN , OUTPUT); ///en estas dos lineas ACTIVAMOS NUEVAMENTE el motor de z
+digitalWrite(Z_ENABLE_PIN , LOW);
+
+ digitalWrite(Z_DIR_PIN , HIGH);
+ digitalWrite(X_DIR_PIN , HIGH);
+ digitalWrite(Y_DIR_PIN , LOW);
+ 
+ for (int k = 0; k <= pasos_altura; k++)
+ {
+ digitalWrite(Z_STEP_PIN , HIGH);                  //retorno a posicion base en z
+ delay(retraso);
+ digitalWrite(Z_STEP_PIN , LOW);
+ }
+pinMode(Z_ENABLE_PIN , INPUT);
+
+  pinMode(X_ENABLE_PIN , OUTPUT); 
+digitalWrite(X_ENABLE_PIN , LOW);
+
+  for (int i = 0; i <= (((limite_x)*140)-pasos_x)/2; i++)
+ {
+ digitalWrite(X_STEP_PIN , HIGH);                  //retorno a posicion base en X
+  delay(retraso);
+ digitalWrite(X_STEP_PIN , LOW);
+ }
+pinMode(X_ENABLE_PIN , INPUT);
+
+
+  pinMode(Y_ENABLE_PIN , OUTPUT); 
+digitalWrite(Y_ENABLE_PIN , LOW);
+ 
+ for (int j = 0; j <= (((limite_x)*140)-pasostotales_y)/2; j++)
+ {
+ digitalWrite(Y_STEP_PIN , HIGH);                  //retorno a posicion base en y
+ delay(retraso);
+ digitalWrite(Y_STEP_PIN , LOW);
+ }
+ pinMode(Y_ENABLE_PIN , INPUT);
+ 
+//-----------------------------------------------------------------
+    break;
+
+  }
+
+}
