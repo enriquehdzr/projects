@@ -1,15 +1,15 @@
-//Este codigo es implementado en un microcontrolador ATmega 8 para poder monitoreo estelar
-// se puede adaptar a un radio telescopio.
-// L idea es ingresar información del objeto estelar que se desea seguir. El programa por sí solo hace los calculos y evaluaciones
-// necesarios para predecir la posicion futura del mismo y asi continuar con una observación continua y precisa.
+
+// This code was implemented in a ATmega 8 microcontroler for doing stelar monitoring being attached to a radiotelescope.
+//The idea is to input the inforation of the stelar body that we want to track. The program makes all calculations by itself, 
+//so it can predict future position of the body in order to get a precise tracking.
+
+// In this program I had consider the existance of hundreds of eye visible object in the sky. This controls at least two different motor
+// but more can be attached. When we input the values all the calculations are made considering a precision of 0.05 degrees of stelar tracking. 
 
 
 
-#include <Keypad.h>
-#include <Wire.h> 
-#include<AFMotor.h>
 
-
+/// This instruction are not needed to understand the programm. They are just to remember the order of input comands.
 //////////    instrucciones
 //////////  Para dar los valores de posicion actual se pulsan las coordenadas de AR y posterior se guarda con *
 //////////  en seguida, se pulsan las coordenadas de DEC y se guarda con #
@@ -20,6 +20,11 @@
 //////////  en caso de que pudiera chocar el tubo con el tripie por girar por debajo del horizonte
 //////////  entonces se acciona con B
 //////////
+
+#include <Keypad.h>
+#include <Wire.h> 
+#include<AFMotor.h>
+
 
 
 AF_DCMotor motor1(1);              // A la puerta M1 M2
@@ -158,7 +163,7 @@ motor1.run(RELEASE);
 
     mueve2=horas2  +  (minutos2  +  (segundos2/60))/60;
 
-      //motor 2 son 51.428571 grados por 200 pasos... cada 7 vueltas de piñon es una vuelta de engrane
+      //motor 2 son 51.428571 grados por 200 pasos... cada 7 vueltas de piÃ±on es una vuelta de engrane
     muevepasos2=(mueve2-actual2)*3.88888888;
     Serial.print(mueve2); Serial.print('-');
     Serial.print(actual2); Serial.print('='); Serial.println(muevepasos2/3.88888888);
