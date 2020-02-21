@@ -1,11 +1,13 @@
 c This is a program used to read the information from a file table.xvg previously generated. In that file we found 105 000 diferent values for this particular case.
-c THose values correspond to a information of the behaivor from every each one of the 15 000 molecules of a thermodinamical system.
+c THose values correspond to a information of the behaivor from every each one of the 15 000 molecules of a thermodinamical system and
+c some derivates that are also calculated by the program.
 c What we do with this program, made with fortran, is to read the contribution of every single particle over all the others left.
 c we need to do this in order to be able to predict the future location, speed, force cotribution, etc, in whatever timelipse we would like to.
 C DUe to the hardware that i had access to (Olinka Cluster), i was able to do this just for 10 million time steps, wich means that i had to get the
 c statistics for almost  1.05x10^12 diferent values. For doing so, I help myself with a C++ program, shamely I'm still no having the permission to share it
-c beacuse it is now my University's property until they release my thesis. In this field of study is hardly necesry to know how to predict the behaivor for every single one of thousands,
-c hopefully million of particles in order to recreate values as closest to their real behaivor as we can, this by using commonly MOnte Carlo models wich is widely known in statistics.
+c beacuse it is now my University's property until they release my thesis. In this field of study is hardly necesry to know how to predict the behaivor 
+c for every single one of thousands, hopefully million of particles in order to recreate values as closest to their real behaivor as we can, this by using 
+c commonly MOnte Carlo models wich is widely known in statistics. 
 
       PROGRAM potrep
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
