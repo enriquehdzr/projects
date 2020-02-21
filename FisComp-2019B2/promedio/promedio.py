@@ -1,5 +1,4 @@
-# Calcula promedio de los datos contenidos en
-# el archivo datos.dat
+# Get the average of data contained in datos.dat
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from platform import python_version
@@ -31,7 +30,11 @@ for line in lista:
     sig = math.sqrt(valabs) 
 print"   "
 print"Numero de datos", c
+
+#print the average
 print"El promedio es", prom
+
+#print the deviation
 print"La desviacion es", sig
 print"   "
 
