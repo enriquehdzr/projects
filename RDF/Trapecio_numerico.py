@@ -1,5 +1,5 @@
 
-#Este programa sirve para generar la integral numerica de una curva para la cual nosotros asignamos los valores
+#wITH THIS PROGRAM WE CAN GET THE NUMERICAL INTEGRATION OF A CURVE WICH WE SET THE VALUES FOR IN A DATA FILE.
 
 from plataform import python_version
 print ("python " + python_version())
