@@ -1,39 +1,43 @@
-Estos programas se utilizan para obtener la funcion de distribución radial.
+Estos programas se utilizan para obtener la funcion de distribuciÃ³n radial.
 Estadisticamente la importancia de esta funcion se refiere a determinar la posibilidad de que una
 particula se encuentra cercana a una particula de prueba. Con esto podemos obtener patrones de densidad 
 y tendencias de fluides para determinar el estado del sistema.
 Nuevamente se recurre al modelo Monte Carlo para generar valoreas aleatorios que permitan predecir futuros 
 comportamientos a aprtir de comportamientos anteriores
 
+This files are part of a system used to get the known Radial distribution Function, wich is used to determine la probability 
+for one particle to be near to a sample one. With this we can get patterns of density and trens of fluidity in order to 
+determine the state of the system. 
+For this is evaluated the position for much particules as we want. Systems with over 10 thousand particles are commonly used so 
+the amount of data analyzed used to be very large.
 
-
-1.- Generar la configuracion inicial
-correr el ejecutable conf.exe o conf (el codigo fuente es conf.f)
-Para compilar el programa conf.f
+1.- Generate the initial configuration
+running conf.exe or conf (source code is conf.f)
+to do this conf.f
 ./gfortran -o conf.exe conf.f
 
-Ejecutar
+Run
 ./conf.exe
 
-Seleccionar la opcion 1 (FCC)
-Seleccionar el numero 3 (3-replicas) Numero de atomos = 108
-Introducir la densidad numerica adimensional, dens=0.5
-Seleccionar la opcion 2 (foto configuracion inicial)
-Seleccionar la opcion 0 (salir)
-Sugerencia, el archivo de salida puede llamarse ''fort.1x''
+Select option 1 (FCC)
+Select number 3 (3-replicas) Number of atoms = 108
+Set adimentional numeric density, dens=0.5
+Select option 2 (photo of initial config)
+Select option 0 (exit)
+output file may be called ''fort.1x''
 
-2.- Simulacion Monte Carlo
+2.- Monte Carlo simulation
 
-copiar el archivo fort.1x a fort.1
+copy fort.1x to fort.1
 cp fort.1x  fort.1
 
-Para compilar el programa de Monte Carlo
+To compile the Monte Carlo program we use
 gfortran -o mc.exe mc.f
 
-3.- corrida
+3.- Run
 ./mchs.exe < mchs.dat
 
-El archivo ''mc.dat'' contiene datos de entrada para llevar a cabo la corrida:
+The file ''mc.dat'' contains input data to get the simulation done
 HS      !TITLE
 5000    !NUMBER OF CYCLES
 500     !NUMBER OF CYCLES BETWEEN OUTPUT
@@ -42,8 +46,8 @@ HS      !TITLE
 fort.1  
 0.5     !DENSITY
 
-Solo se pueden simular 108 moleculas que interactuan mediante el potencial de esfera dura.
-Calcula la energia potencial y la presion
 
-4.- Visualizar la funcion de distribucion radial
+Estimate the potential energy and pressure  
+
+4.- Plot the function using xmgrace
 xmgrace gr.dat
