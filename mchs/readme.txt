@@ -1,15 +1,10 @@
-Estos programas se utilizan para obtener la funcion de distribución radial.
-Estadisticamente la importancia de esta funcion se refiere a determinar la posibilidad de que una
-particula se encuentra cercana a una particula de prueba. Con esto podemos obtener patrones de densidad 
-y tendencias de fluides para determinar el estado del sistema.
-Nuevamente se recurre al modelo Monte Carlo para generar valoreas aleatorios que permitan predecir futuros 
-comportamientos a aprtir de comportamientos anteriores
 
 This files are part of a system used to get the known Radial distribution Function, wich is used to determine la probability 
 for one particle to be near to a sample one. With this we can get patterns of density and trens of fluidity in order to 
 determine the state of the system. 
 For this is evaluated the position for much particules as we want. Systems with over 10 thousand particles are commonly used so 
 the amount of data analyzed used to be very large.
+Monte Carlo predictions allow us to anticipate future status or behaivor according to previous data.
 
 1.- Generate the initial configuration
 running conf.exe or conf (source code is conf.f)
