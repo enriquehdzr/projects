@@ -1,3 +1,5 @@
+# THIS IS A TREE DECISION EXAMPLE FOR MACHINE LEARNING. THE IDEA IS TO REDICT IF WE MUST OR NOT BOY AN ESPECIFIC CAR
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
