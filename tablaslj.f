@@ -1,13 +1,24 @@
-c This is a program used to read the information from a file table.xvg previously generated. In that file we found 105 000 diferent values for this particular case.
-c THose values correspond to a information of the behaivor from every each one of the 15 000 molecules of a thermodinamical system and
+
+c This is a program used to read the information from a file table.xvg previously generated. In that file we find 105 000 diferent 
+c values for this particular case.
+c THose values correspond to information of the behaivor from every each one of the 15 000 molecules of a thermodinamical system and
 c some derivates that are also calculated by the program.
 c What we do with this program, made with fortran, is to read the contribution of every single particle over all the others left.
-c we need to do this in order to be able to predict the future location, speed, force cotribution, etc, in whatever timelipse we would like to.
-C DUe to the hardware that i had access to (Olinka Cluster), i was able to do this just for 10 million time steps, wich means that i had to get the
-c statistics for almost  1.05x10^12 diferent values. For doing so, I help myself with a C++ program, shamely I'm still no having the permission to share it
-c beacuse it is now my University's property until they release my thesis. In this field of study is hardly necesry to know how to predict the behaivor 
-c for every single one of thousands, hopefully million of particles in order to recreate values as closest to their real behaivor as we can, this by using 
-c commonly MOnte Carlo models wich is widely known in statistics. 
+c we need to do this in order to be able to predict the their future location, speed, force cotribution, etc, in whatever timelipse we 
+c would like to. DUe to the hardware that I had access to (Olinka Cluster), I was able to do this just for 10 million time steps, wich
+c means that I had to get the statistics for almost 1.05x10^12 diferent values. For doing so, I help myself with a C++ program, shamely 
+c I'm still no having the permission to share it beacuse it is now my University's property until they release my thesis. In this field
+c of study is hardly necessary to know how to predict the behaivor for every single one of thousands, hopefully million of particles in 
+c order to recreate values as closest to their real behaivor as we can, this by using commonly MOnte Carlo models wich is widely known 
+c in statistics. 
+c This is just a little piece of what I have donde in my Thesis reasearch. The importance of this investigation is to get a statistical
+c model that allow us to recreate or even better, to predict the behaivor of systems that could be shaped by thousands or millions of 
+c atoms, molecules, etc, but it could also be moved to stars or galaxies. Of course, as the system gets bigger so it will be the hardware
+c need. With all this simulation, for example, we are able to reproduce the most posible performance of a substances such as poison,
+c proteins or even a medicines without having to experiment with life.
+c In the particular case of my thesis, it is focused on predict precisely the thermodynamical behaivor of substances used in 
+c petrochemical industry in order to avoid the real experiments that are made to optimized their processes. This could save big 
+c amounts of money.
 
       PROGRAM potrep
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
