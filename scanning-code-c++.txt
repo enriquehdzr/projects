@@ -1,11 +1,11 @@
-/// Este codigo en C++ tiene la finalidad de ser carado a un microcontrolador ATmega 8
-// la idea es realizar un scaneo sobre superficies de diferentes dimensiones.
-// Con este programa se interpretan datos que se introducen a traves de un teclado para poder
-// definir el comportamiento que tendra el movimiento del equipo.
 
-
-
-
+// This code made wiht c++ has the intention to be uploaded to an ATmega 8 AVR microcontroles
+//With this we can make an scanning of different surfaces with diferent dimentions.
+// The setup is made by entering the information of the surface, then the code divides properly 
+// this quantities to get an unifform scan with a precision of 0.05 micrometers.
+// It was needed to consider the existance of a lot of diferent shapes that could be loaded in the equipment to be analyzed.
+// So this is more a logical question to discard those patterns of scanning that doesn't fit with the analyzed shape.
+// For this I had to get the program able to interpret the input data and make by itself the appropiate decision.
 
 
 
@@ -40,7 +40,7 @@ int gama=0;
 
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/////// Aqui se definen los limites dimensionales de cada eje en milímetros//////////////
+/////// Aqui se definen los limites dimensionales de cada eje en milÃ­metros//////////////
 /////////////////////////////////////////////////////////////////////////////////////////
 
 
