@@ -1,24 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# METODO DE SIMPSON                      
+# SIMPSON METHOD FOR INTEGRATION                     
 from platform import python_version
 print ("Python " + python_version())
 import sys
 import numpy as np
 
-# FUNCION A INTEGRAR
+#FUNCTION TO BE INTEGRATED
 def f(x):
     fxi = np.cos(x)*np.cos(x)
     return(fxi)
 
-# LIMITES 
+# LIMITS
 print("    ")
 print("Dame los limites de integracion")
 a =  float(input('a: '))
 b =  float(input('b: '))
 n =  int(input('particiones: '))
 
-# PROCEDIMIENTO
+# PROCEDURE
 h = (b-a)/float(n)
 pares = 0.0
 impares = 0.0
@@ -31,7 +31,7 @@ for j in range(3,n,2):
 
     integral = h*(f(a) + pares + impares + f(b))/3.0
 
-# RESULTADO DE LA INTEGRAL
+# PLOT RESULT
 print('            ')
 print('El valor de la integral es ' + str(integral))
 print('            ')
