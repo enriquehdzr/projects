@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# METODO DEL TRAPECIO                    
+# TRAPEZOIDAL INTEGRATION METHOD                 
 from platform import python_version
 print ("Python " + python_version())
 import sys
 import numpy as np
 
-# FUNCION A INTEGRAR
+# FUNCTION TO BE INTEGRATED
 def f(x):
     fxi = np.cos(x)*np.cos(x)
     return(fxi)
@@ -18,7 +18,7 @@ a =  float(input('a: '))
 b =  float(input('b: '))
 n =  int(input('particiones: '))
 
-# PROCEDIMIENTO
+# PROCEDURE
 h = (b-a)/float(n)
 suma = 0.0
 x = 0.0
@@ -27,7 +27,7 @@ for i in range(0,n-1,1):
     suma = suma + f(x)
     integral = 0.5*h*(f(a) + 2.0*suma + f(b))
 
-# RESULTADO DE LA INTEGRAL
+# PLOT RESULT
 print('         ')
 print('Integral= ' + str(integral))
 print('         ')
