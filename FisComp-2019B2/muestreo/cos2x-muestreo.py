@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-## INTEGRACON NUMERICA USANDO EL MUESTREO      
+## Numerical integration using sampling     
 from platform import python_version
 print ("Python " + python_version())
 import sys
@@ -8,11 +8,11 @@ import sys
 import math
 import random
 
-# SE DEFINE LA FUNCION      
+# The function is defined      
 def f(x):
     return math.cos(x)
 
-# LIMITES DE INTEGRACION                                 
+# set integration limits                                 
 print("    ")
 print("Dame los limites de integracion")
 xmin =  float(input('a: '))
@@ -26,7 +26,7 @@ for j in range(numPoints):
 
 numInt = (xmax - xmin) * sumy / numPoints     
 
-# RESULTADO DE LA INTEGRAL
+# result
 print('         ')
 print('Integral= ' + str(numInt))
 print('         ')
